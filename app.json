@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "JagX",
+    "slug": "jagx",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": ["**/*"],
+    "android": {
+      "package": "com.jagx.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#111111"
+      }
+    },
+    "extra": {
+      "JAGX_API_URL": "https://YOUR-VERCEL-APP.vercel.app/api/chat"
+    }
+  }
+}

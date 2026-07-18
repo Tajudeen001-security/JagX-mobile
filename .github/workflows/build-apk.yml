@@ -1,0 +1,68 @@
+name: Build JagX APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Inject API URL
+        # Point the built app at your deployed Vercel API.
+        # Set JAGX_API_URL as a repo secret: Settings -> Secrets and variables -> Actions
+        run: |
+          node -e "
+            const fs = require('fs');
+            const p = './app.json';
+            const j = JSON.parse(fs.readFileSync(p, 'utf8'));
+            j.expo.extra.JAGX_API_URL = process.env.JAGX_API_URL || j.expo.extra.JAGX_API_URL;
+            fs.writeFileSync(p, JSON.stringify(j, null, 2));
+          "
+        env:
+          JAGX_API_URL: ${{ secrets.JAGX_API_URL }}
+
+      - name: Prebuild native Android project
+        run: npx expo prebuild --platform android --non-interactive
+
+      # NOTE: this builds a DEBUG apk (unsigned-for-store, but fully
+      # installable on any device) so CI works with zero setup.
+      # For a real Play Store release you need a signing keystore:
+      # 1. Generate one: keytool -genkeypair -v -keystore jagx.keystore -alias jagx -keyalg RSA -keysize 2048 -validity 10000
+      # 2. Base64 it and store as a repo secret, decode it in this workflow,
+      #    reference it from android/app/build.gradle signingConfigs.release,
+      #    then swap this step to `./gradlew assembleRelease`.
+      - name: Build debug APK
+        working-directory: android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jagx-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
