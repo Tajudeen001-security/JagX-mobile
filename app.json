@@ -1,19 +1,17 @@
 {
   "expo": {
-    "name": "JagX",
+    "name": "JagX AI",
     "slug": "jagx",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "assetBundlePatterns": ["**/*"],
     "android": {
       "package": "com.jagx.app",
-      "adaptiveIcon": {
-        "backgroundColor": "#111111"
-      }
+      "adaptiveIcon": { "backgroundColor": "#08090B" }
     },
     "extra": {
-      "JAGX_API_URL": "https://YOUR-VERCEL-APP.vercel.app/api/chat"
+      "JAGX_API_URL": "https://jagx-ai-v2.onrender.com"
     }
   }
 }
